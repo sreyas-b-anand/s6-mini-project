@@ -111,9 +111,10 @@ model = BertForSequenceClassification.from_pretrained(
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 model.to(device)
 
+torch.backends.cudnn.benchmark = True 
 optimizer = AdamW(model.parameters(), lr=2e-5)
 
-epochs = 4
+epochs = 3
 total_steps = len(train_loader) * epochs
 
 scheduler = get_linear_schedule_with_warmup(
@@ -154,6 +155,7 @@ for epoch in range(epochs):
 
     avg_loss = total_loss / len(train_loader)
     print(f"Epoch {epoch+1}/{epochs} - Loss: {avg_loss:.4f}")
+    model.save_pretrained(f"../models/checkpoint_epoch_{epoch+1}")
 
 # =========================
 # 8️⃣ Evaluation

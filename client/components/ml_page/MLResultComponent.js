@@ -6,7 +6,7 @@ const MLResultComponent = ({ result }) => {
   if (!result) {
     return (
       <div className="border rounded-md border-muted text-center max-w-xl mx-auto py-6">
-        <p className="text-muted">Your prediction will appear here.</p>
+        <p className="text-muted">Prediction will appear here.</p>
       </div>
     );
   }
