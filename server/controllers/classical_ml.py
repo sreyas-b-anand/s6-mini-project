@@ -18,11 +18,27 @@ async def classical_ml(req: ScoreRequest):
         data = joblib.load(MODEL_PATH)
         model = data["model"]
         le = data["label_encoder"]
+        CATEGORY_MAP = {
+            "Electronics": "Electronics_5",
+            "Books": "Books_5",
+            "Movies": "Movies_and_TV_5",
+            "Home Appliances": "Home_and_Kitchen_5",
+            "Sports": "Sports_and_Outdoors_5",
+            "Tools and Home Improvements": "Tools_and_Home_Improvement_5",
+            "Pets supplies": "Pet_Supplies_5",
+            "Kindle": "Kindle_Store_5",
+            "Toys": "Toys_and_Games_5",
+            "Fashion and clothing": "Clothing_Shoes_and_Jewelry_5"
+        }
         
         if(not req.text or not req.rating or not req.category):
             raise Exception("Missing fields")
             
-    
+        mapped_category = CATEGORY_MAP.get(req.category)
+
+        if mapped_category is None:
+            raise Exception("Invalid category")
+        
         input_df = pd.DataFrame([{
             "category": req.category,
             "rating": req.rating,

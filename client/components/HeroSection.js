@@ -40,7 +40,9 @@ const HeroSection = () => {
           <button
             onClick={() => router.push("/ml")}
             className="px-8 py-4 rounded-xl font-semibold text-lg
-                       bg-primary
+            hover:cursor-pointer
+                       bg-foreground
+                       text-background
                        hover:scale-105
                        transition-all duration-300
                        shadow-xl"
@@ -51,10 +53,13 @@ const HeroSection = () => {
           <button
             onClick={() => router.push("/bert")}
             className="px-8 py-4 rounded-xl font-semibold text-lg
-                       bg-secondary
+            hover:cursor-pointer
+                       bg-background
+                       text-primary
                        hover:scale-105
                        transition-all duration-300
-                       shadow-xl"
+                       shadow-xl
+                      "
           >
             Try BERT Model
           </button>
