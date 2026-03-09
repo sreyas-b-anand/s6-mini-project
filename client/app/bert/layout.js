@@ -8,14 +8,14 @@ const poppins = Poppins({
 });
 
 export const metadata = {
-  title: "RevDet - ML Prediction",
+  title: "RevDet - Bert Model",
   description: "A website for detecting fake reviews using machine learning",
 };
 const buttonProps = {
-  href: "/bert",
-  label: "Try BERT Model",
+  href: "ml",
+  label: "Try ML Model",
 };
-export default function MLLayout({ children }) {
+export default function BertLayout({ children }) {
   return (
     <div className="m-3">
       <Navbar buttonProps={buttonProps} />
