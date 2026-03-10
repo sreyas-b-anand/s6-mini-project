@@ -8,3 +8,6 @@ instance
 logs/
 *.vscode/
 .idea/
+models/
+/*.pkl
+/*.safetensors
