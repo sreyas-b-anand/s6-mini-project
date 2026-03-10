@@ -12,7 +12,7 @@ import {
   SelectContent,
   SelectItem,
 } from "@/components/ui/select";
-import { Ellipse } from "lucide-react";
+import { Loader } from "lucide-react";
 import usePost from "@/hooks/usePost";
 import MLResultComponent from "./MLResultComponent";
 
@@ -102,7 +102,7 @@ const MLForm = () => {
           disabled={loading}
           className="w-full py-6 text-background hover:cursor-pointer hover:opacity-90"
         >
-          {loading ? <Ellipse className="animate-bounce" /> : "Predict Review"}
+          {loading ? <Loader className="animate-spin" /> : "Predict Review using ML model"}
         </Button>
       </div>
 

@@ -9,5 +9,5 @@ logs/
 *.vscode/
 .idea/
 models/
-/*.pkl
-/*.safetensors
+*.pkl
+*.safetensors

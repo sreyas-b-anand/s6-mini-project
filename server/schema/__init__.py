@@ -1,1 +1,1 @@
-from .score import ScoreRequest
+from .score import ScoreRequest,ReviewRequest
