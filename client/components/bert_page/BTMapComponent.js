@@ -6,9 +6,12 @@ import { ReviewCard } from "@/components/Card";
 export const BTMapComponent = ({ reviews }) => {
   if (!reviews || reviews.length === 0) {
     return (
+       <div className="w-full border rounded-md border-muted text-center max-w-xl mx-auto py-6">
+
       <p className="text-center text-muted">
-        No reviews to display
+        Predictions will appear here.
       </p>
+       </div>
     );
   }
 
