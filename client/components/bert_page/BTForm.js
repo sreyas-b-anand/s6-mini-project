@@ -19,14 +19,13 @@ const BTForm = () => {
   const handleSubmit = async () => {
     const formData = new FormData();
 
-
     if (useLink) {
       formData.append("link", link);
     } else {
       formData.append("text", text);
     }
 
-    await postData({text});
+    await postData(formData.reviews);
   };
 
   return (
@@ -39,7 +38,6 @@ const BTForm = () => {
       </div>
 
       <div className="space-y-6">
-
         <div className="flex justify-end">
           <Button
             onClick={() => setUseLink(!useLink)}
@@ -49,7 +47,6 @@ const BTForm = () => {
           </Button>
         </div>
 
-        
         {!useLink && (
           <div className="space-y-2">
             <Label className="text-base">Review Text</Label>
@@ -80,7 +77,11 @@ const BTForm = () => {
           disabled={loading}
           className="w-full py-6 text-background hover:cursor-pointer hover:opacity-90"
         >
-          {loading ? <Loader className="animate-spin" /> : "Predict Review using BERT"}
+          {loading ? (
+            <Loader className="animate-spin" />
+          ) : (
+            "Predict Review using BERT"
+          )}
         </Button>
       </div>
 

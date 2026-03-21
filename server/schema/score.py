@@ -1,9 +1,9 @@
 from pydantic import BaseModel
-
-class ScoreRequest(BaseModel):
+from typing import Optional
+class MlScoreRequest(BaseModel):
     category : str
     rating : float
     text : str
 
-class ReviewRequest(BaseModel):
-    text: str
+class BertScoreRequest(BaseModel):
+    text: str              

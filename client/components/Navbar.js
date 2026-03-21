@@ -10,8 +10,8 @@ const Navbar = ({ buttonProps }) => {
       <p className="font-semibold text-2xl">RevDet</p>
 
       <div className="bg-foreground text-background py-3 px-4 rounded-md flex items-center justify-center gap-2 text-sm font-medium hover:opacity-90 ">
-        <Link href={buttonProps.href}>{buttonProps.label}</Link>
-        <SquareArrowOutUpRight size={18} />
+        <Link className="flex  flex-row gap-2 items-center justify-center" href={buttonProps.href}>{buttonProps.label}<SquareArrowOutUpRight size={18} /></Link>
+        
       </div>
     </div>
   );

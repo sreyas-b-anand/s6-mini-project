@@ -2,7 +2,7 @@ import os
 from fastapi import APIRouter , status
 from server.controllers import bert_model
 from server.controllers import classical_ml 
-from server.schema import ScoreRequest, ReviewRequest
+from server.schema import BertScoreRequest , MlScoreRequest
 from server.utils.graph import GraphFeatureExtractor
 model_router = APIRouter()
 
@@ -12,12 +12,12 @@ DATASET_PATH = os.path.join(BASE_DIR, "..", "data", "reviews.csv")
 MODEL_PATH = os.path.join(BASE_DIR, "..", "models", "graph_model.pkl")
 
 @model_router.post('/bert_score')
-async def get_bert_score(req:ReviewRequest):
+async def get_bert_score(req:BertScoreRequest):
     return await bert_model(req.text)
 
 
 @model_router.post('/ml_score')
-async def get_ml_score(req : ScoreRequest):
+async def get_ml_score(req : MlScoreRequest):
     return await classical_ml(req)
 
 # only for training graph model 
