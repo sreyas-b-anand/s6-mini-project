@@ -74,6 +74,13 @@ def _safe_text(element, selector: str) -> str:
     return node.get_text(strip=True) if node else ""
 
 
+def _parse_rating(rating: str) -> float:
+    try:
+        return float(rating.split(" ")[0])
+    except:
+        return 0.0
+
+
 def parse_reviews(soup: BeautifulSoup) -> list[Review]:
     return [
         Review(
@@ -134,11 +141,11 @@ def scrape_and_save(
     pages: int = 5,
     delay: float = 3.0,
     login_timeout: int = 100,
-) -> Path:
+) -> list[list]:
     """
     Scrapes Amazon reviews for the given ASIN across 5 filters.
-    Saves results to backend/data/reviews/{ASIN}.csv and returns the Path.
-    Your BERT pipeline can then do pd.read_csv(path) on it.
+    Returns a list of [content, rating] pairs where rating is a float.
+    e.g. [["Great product", 5.0], ["Not worth it", 2.0], ...]
     """
 
     filters = [
@@ -166,12 +173,4 @@ def scrape_and_save(
     if not all_reviews:
         raise ValueError(f"No reviews found for ASIN: {asin}")
 
-    output_path = OUTPUT_DIR / f"{asin}.csv"
-
-    with open(output_path, "w", newline="", encoding="utf-8") as f:
-        writer = csv.writer(f)
-        writer.writerow(["content", "rating"])
-        for r in all_reviews:
-            writer.writerow([r.content, r.rating])
-
-    return output_path
+    return [[r.content, _parse_rating(r.rating)] for r in all_reviews]
