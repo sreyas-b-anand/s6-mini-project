@@ -136,7 +136,7 @@ def scrape_filter(
 
 # ── Main utility function ─────────────────────────────────────────────────────
 
-def scrape_and_save(
+async def scrape_and_save(
     asin: str,
     pages: int = 5,
     delay: float = 3.0,
