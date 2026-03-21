@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { use, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
@@ -8,24 +8,32 @@ import { Textarea } from "@/components/ui/textarea";
 import { Loader } from "lucide-react";
 import usePost from "@/hooks/usePost";
 import BTResultComponent from "./BTResultComponent";
+import { form } from "framer-motion/client";
+import { number } from "framer-motion";
 
 const BTForm = () => {
   const { postData, loading, data } = usePost("/bert_score");
 
-  const [text, setText] = useState("");
-  const [link, setLink] = useState("");
+  const [review, setReview] = useState("");
+  const [rating, setRating] = useState("");
+  const [url, setUrl] = useState("");
+  
   const [useLink, setUseLink] = useState(false);
 
   const handleSubmit = async () => {
     const formData = new FormData();
 
     if (useLink) {
-      formData.append("link", link);
+      formData.append("link", url);
+      formData.append("type" , "link");
     } else {
-      formData.append("text", text);
+      formData.append("review", review);
+      formData.append("rating", rating);
+      formData.append("type" , "single");
     }
+    
 
-    await postData(formData.reviews);
+    await postData(formData);
   };
 
   return (
@@ -49,10 +57,18 @@ const BTForm = () => {
 
         {!useLink && (
           <div className="space-y-2">
+            <Label className="text-base">Rating</Label>
+            <Input
+            type={number}
+              value={rating}
+              onChange={(e) => setRating(e.target.value)}
+              placeholder="Enter the rating..."
+              className="focus-visible:ring-1"
+            />
             <Label className="text-base">Review Text</Label>
             <Textarea
-              value={text}
-              onChange={(e) => setText(e.target.value)}
+              value={review}
+              onChange={(e) => setReview(e.target.value)}
               placeholder="Write the review here..."
               className="min-h-40 focus-visible:ring-1"
             />
@@ -64,8 +80,8 @@ const BTForm = () => {
           <div className="space-y-2">
             <Label className="text-base">Product Link</Label>
             <Input
-              value={link}
-              onChange={(e) => setLink(e.target.value)}
+              value={url}
+              onChange={(e) => setUrl(e.target.value)}
               placeholder="Paste the product URL here..."
               className="focus-visible:ring-1"
             />

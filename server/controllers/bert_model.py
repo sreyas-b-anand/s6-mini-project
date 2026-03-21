@@ -1,28 +1,17 @@
-from transformers import BertTokenizer, BertForSequenceClassification
-import torch
 import os
+from server.utils.bert.bert_inference import FakeReviewDetector
 
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-MODEL_PATH = os.path.join(BASE_DIR, "..", "models", "bert_model")
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+# __file__ = server/controllers/your_controller.py
+# BASE_DIR = server/
 
-# Load once when server starts
-tokenizer = BertTokenizer.from_pretrained(MODEL_PATH)
-model = BertForSequenceClassification.from_pretrained(MODEL_PATH)
-model.eval()
+detector = FakeReviewDetector(
+    model_dir=os.path.join(BASE_DIR, "models", "bert_model_new")  
+)
 
-async def bert_model(text: str):
-    inputs = tokenizer(
-        text,
-        return_tensors="pt",
-        max_length=256,
-        truncation=True,
-        padding=True
-    )
-    with torch.no_grad():
-        outputs = model(**inputs)
-
-    pred = torch.argmax(outputs.logits, dim=1).item()
-    confidence = torch.softmax(outputs.logits, dim=1).max().item()
-    label = "FAKE" if pred == 0 else "REAL"
-
-    return {"prediction": label, "confidence": round(confidence * 100, 2)}
+async def bert_model(texts: str, ratings: float):
+    results = detector.predict(texts=texts, ratings=ratings)
+    return [
+        {"prediction": r["label"], "confidence": r["confidence"]}
+        for r in results
+    ]

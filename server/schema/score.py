@@ -6,4 +6,7 @@ class MlScoreRequest(BaseModel):
     text : str
 
 class BertScoreRequest(BaseModel):
-    text: str              
+    type: str      
+    url: Optional[str] = None
+    review: Optional[str] = None
+    rating: Optional[float] = None       
