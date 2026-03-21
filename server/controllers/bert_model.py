@@ -11,7 +11,23 @@ detector = FakeReviewDetector(
 
 async def bert_model(texts: str, ratings: float):
     results = detector.predict(texts=texts, ratings=ratings)
-    return [
-        {"prediction": r["label"], "confidence": r["confidence"]}
-        for r in results
+    if len(texts) != len(results):
+        raise ValueError("Length mismatch in texts")
+    
+    if len(results) == 1:
+        r = results[0]
+        return {
+            "prediction": r["label"],
+            "confidence": r["confidence"]
+        }
+    
+    formatted_results = [
+        {
+            "text": text,
+            "prediction": r["label"], 
+            "confidence": r["confidence"]
+        }
+        for text, r in zip(texts, results)
     ]
+    
+    return formatted_results

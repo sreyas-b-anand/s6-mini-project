@@ -3,6 +3,7 @@ import { CloudAlert, CloudCheck } from "lucide-react";
 import React from "react";
 
 const BTResultComponent = ({ result }) => {
+  
   if (!result) {
     return (
       <div className="border rounded-md border-muted text-center max-w-xl mx-auto py-6">
@@ -15,11 +16,11 @@ const BTResultComponent = ({ result }) => {
     <div className="border rounded-md border-muted text-center max-w-xl mx-auto py-6">
       <p
         className={`${
-          result.prediction=== "REAL" ? "text-green-600" : "text-red-600"
+          result.prediction === "OR" ? "text-green-600" : "text-red-600"
         } font-semibold text-lg flex items-center justify-center gap-3`}
       >
-        {result.prediction=== "REAL" ? <CloudCheck /> : <CloudAlert />}
-        {result.prediction=== "REAL" ? "Authentic Review" : "Fake Review"}
+        {result.prediction === "OR" ? <CloudCheck /> : <CloudAlert />}
+        {result.prediction === "OR" ? "Authentic Review" : "Fake Review"}
       </p>
     </div>
   );

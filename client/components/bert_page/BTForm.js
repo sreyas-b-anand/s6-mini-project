@@ -10,6 +10,7 @@ import usePost from "@/hooks/usePost";
 import BTResultComponent from "./BTResultComponent";
 import { form } from "framer-motion/client";
 import { number } from "framer-motion";
+import { BTMapComponent } from "./BTMapComponent";
 
 const BTForm = () => {
   const { postData, loading, data } = usePost("/bert_score");
@@ -17,7 +18,6 @@ const BTForm = () => {
   const [review, setReview] = useState("");
   const [rating, setRating] = useState("");
   const [url, setUrl] = useState("");
-  
   const [useLink, setUseLink] = useState(false);
 
   const handleSubmit = async () => {
@@ -25,13 +25,12 @@ const BTForm = () => {
 
     if (useLink) {
       formData.append("link", url);
-      formData.append("type" , "link");
+      formData.append("type", "link");
     } else {
       formData.append("review", review);
       formData.append("rating", rating);
-      formData.append("type" , "single");
+      formData.append("type", "single");
     }
-    
 
     await postData(formData);
   };
@@ -59,7 +58,7 @@ const BTForm = () => {
           <div className="space-y-2">
             <Label className="text-base">Rating</Label>
             <Input
-            type={number}
+              type={number}
               value={rating}
               onChange={(e) => setRating(e.target.value)}
               placeholder="Enter the rating..."
@@ -101,7 +100,9 @@ const BTForm = () => {
         </Button>
       </div>
 
-      {<BTResultComponent result={data} />}
+      {!useLink && <BTResultComponent result={data} />}
+      
+      {useLink && <BTMapComponent reviews={data} />}
     </div>
   );
 };
