@@ -39,7 +39,16 @@ const BTForm = () => {
       <div className="text-center space-y-2">
         <p className="font-semibold text-3xl">BERT Review Prediction</p>
         <p className="text-muted text-md">
-          Enter a review or a product link below from the <span className="font-bold">Amazon</span> website to predict its authenticity
+          {useLink ? (
+            <>
+              Enter a review or a product link below from the{" "}
+              <span className="font-bold">Amazon</span> website to predict its
+              authenticity
+            </>
+          ) : (
+            <>Enter a review below to predict its authenticity</>
+          )}
+          .
         </p>
       </div>
 
@@ -57,7 +66,7 @@ const BTForm = () => {
             <AlertTriangle size={18} className="mt-0.5 shrink-0" />
             <p>
               You may need to{" "}
-              <span className="font-semibold">log in to Amazon{" "}</span>
+              <span className="font-semibold">log in to Amazon </span>
               for this feature to work, as some reviews are not publicly
               accessible.
             </p>
