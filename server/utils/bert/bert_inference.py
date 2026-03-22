@@ -7,6 +7,8 @@ from transformers import BertTokenizer, BertModel
 
 # ─────────────────────────────────────────────
 # MODEL  (must match bert_train.py exactly)
+# - rating_encoder: 2-layer MLP  Linear(1→16) → ReLU → Linear(16→32) → ReLU
+# - classifier:     Linear(800→256) → ReLU → Dropout → Linear(256→2)
 # ─────────────────────────────────────────────
 class BertFakeReviewModel(nn.Module):
     def __init__(self, dropout: float = 0.3):
@@ -14,9 +16,11 @@ class BertFakeReviewModel(nn.Module):
         self.bert = BertModel.from_pretrained("bert-base-uncased")
         hidden = self.bert.config.hidden_size   # 768
 
-        # project the single rating scalar → 32-dim embedding
-        self.rating_proj = nn.Sequential(
-            nn.Linear(1, 32),
+        # 2-layer rating encoder: 1 → 16 → 32
+        self.rating_encoder = nn.Sequential(
+            nn.Linear(1, 16),
+            nn.ReLU(),
+            nn.Linear(16, 32),
             nn.ReLU(),
         )
 
@@ -29,13 +33,10 @@ class BertFakeReviewModel(nn.Module):
 
     def forward(self, input_ids, attention_mask, rating):
         outputs    = self.bert(input_ids=input_ids, attention_mask=attention_mask)
-        cls_output = outputs.pooler_output                              # (B, 768)
-
-        # rating: (B,) → (B, 1) → (B, 32)
-        rating_emb = self.rating_proj(rating.unsqueeze(1))             # (B, 32)
-
-        combined = torch.cat([cls_output, rating_emb], dim=1)          # (B, 800)
-        return self.classifier(combined)                                # (B, 2)
+        cls_output = outputs.pooler_output                          # (B, 768)
+        rating_emb = self.rating_encoder(rating.unsqueeze(1))      # (B, 32)
+        combined   = torch.cat([cls_output, rating_emb], dim=1)    # (B, 800)
+        return self.classifier(combined)                            # (B, 2)
 
 
 # ─────────────────────────────────────────────
@@ -88,8 +89,8 @@ class FakeReviewDetector:
             return_tensors="pt",
         )
         return {
-            "input_ids":      enc["input_ids"].squeeze(0),       # (seq_len,)
-            "attention_mask": enc["attention_mask"].squeeze(0),  # (seq_len,)
+            "input_ids":      enc["input_ids"].squeeze(0),
+            "attention_mask": enc["attention_mask"].squeeze(0),
         }
 
     # ─────────────────────────────────────────
@@ -110,12 +111,11 @@ class FakeReviewDetector:
             enc = self._encode(str(text))
             all_input_ids.append(enc["input_ids"])
             all_attention_masks.append(enc["attention_mask"])
-            # normalise to [0, 1] — must match training preprocessing
-            all_ratings.append(rating / 5.0)
+            all_ratings.append(rating / 5.0)    # normalise to [0, 1]
 
-        input_ids      = torch.stack(all_input_ids).to(self.device)       # (B, seq_len)
-        attention_mask = torch.stack(all_attention_masks).to(self.device) # (B, seq_len)
-        ratings_tensor = torch.tensor(all_ratings, dtype=torch.float).to(self.device)  # (B,)
+        input_ids      = torch.stack(all_input_ids).to(self.device)
+        attention_mask = torch.stack(all_attention_masks).to(self.device)
+        ratings_tensor = torch.tensor(all_ratings, dtype=torch.float).to(self.device)
 
         with torch.no_grad():
             logits = self.model(input_ids, attention_mask, ratings_tensor)  # (B, 2)
