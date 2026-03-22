@@ -14,23 +14,27 @@ from transformers import (
 )
 from torch.optim import AdamW
 
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-
-DATA_PATH = os.path.join(BASE_DIR, "..", "data", "reviews.csv")
-SAVE_DIR  = os.path.join(BASE_DIR, "model", "bert_model_new")
+# ── UPDATE THESE PATHS BEFORE RUNNING ───────
+DATA_PATH = "/kaggle/input/datasets/sreyasbanand/reviews-dataset-new/reviews.csv"   # <-- update this
+SAVE_DIR  = "/kaggle/working/bert_model"                    # <-- update if needed
+# ────────────────────────────────────────────
 EPOCHS      = 3
 BATCH_SIZE  = 16
 MAX_LEN     = 256
 LR          = 2e-5
 RANDOM_SEED = 42
 
+
+# ─────────────────────────────────────────────
+# DATASET
+# ─────────────────────────────────────────────
 class ReviewDataset(Dataset):
     def __init__(self, texts, ratings, labels, tokenizer, max_len=MAX_LEN):
-        self.texts    = texts.reset_index(drop=True)
-        self.ratings  = ratings.reset_index(drop=True)
-        self.labels   = labels.reset_index(drop=True)
+        self.texts     = texts.reset_index(drop=True)
+        self.ratings   = ratings.reset_index(drop=True)
+        self.labels    = labels.reset_index(drop=True)
         self.tokenizer = tokenizer
-        self.max_len  = max_len
+        self.max_len   = max_len
 
     def __len__(self):
         return len(self.texts)
@@ -46,23 +50,32 @@ class ReviewDataset(Dataset):
             return_tensors="pt",
         )
         return {
-            "input_ids":      encoding["input_ids"].squeeze(0),          # (seq_len,)
-            "attention_mask": encoding["attention_mask"].squeeze(0),     # (seq_len,)
-            "rating":         torch.tensor(float(self.ratings[idx]), dtype=torch.float),
-            "labels":         torch.tensor(int(self.labels[idx]),   dtype=torch.long),
+            "input_ids":      encoding["input_ids"].squeeze(0),
+            "attention_mask": encoding["attention_mask"].squeeze(0),
+            # rating already normalised to [0,1] before dataset creation
+            "rating":  torch.tensor(float(self.ratings[idx]), dtype=torch.float),
+            "labels":  torch.tensor(int(self.labels[idx]),   dtype=torch.long),
         }
 
+
 # ─────────────────────────────────────────────
-# MODEL  (BERT + rating scalar → 2-class head)
+# MODEL  — rating gets its own projection branch
+#          so it isn't drowned out by 768 BERT dims
 # ─────────────────────────────────────────────
 class BertFakeReviewModel(nn.Module):
     def __init__(self, dropout: float = 0.3):
         super().__init__()
         self.bert = BertModel.from_pretrained("bert-base-uncased")
-        hidden    = self.bert.config.hidden_size  # 768
+        hidden = self.bert.config.hidden_size   # 768
+
+        # project the single rating scalar → 32-dim embedding
+        self.rating_proj = nn.Sequential(
+            nn.Linear(1, 32),
+            nn.ReLU(),
+        )
 
         self.classifier = nn.Sequential(
-            nn.Linear(hidden + 1, 256),
+            nn.Linear(hidden + 32, 256),        # 768 + 32 = 800
             nn.ReLU(),
             nn.Dropout(dropout),
             nn.Linear(256, 2),
@@ -70,51 +83,14 @@ class BertFakeReviewModel(nn.Module):
 
     def forward(self, input_ids, attention_mask, rating):
         outputs    = self.bert(input_ids=input_ids, attention_mask=attention_mask)
-        cls_output = outputs.pooler_output                          # (B, 768)
-        combined   = torch.cat([cls_output, rating.unsqueeze(1)], dim=1)  # (B, 769)
-        return self.classifier(combined)                            # (B, 2)
+        cls_output = outputs.pooler_output                              # (B, 768)
 
-# ─────────────────────────────────────────────
-# INFERENCE HELPER  (used by FastAPI)
-# ─────────────────────────────────────────────
-def predict(texts: list[str], ratings: list[float], model_dir: str = SAVE_DIR) -> list[dict]:
-    """
-    texts   : list of review strings
-    ratings : list of star ratings (1-5)
-    returns : list of {"label": "OR"|"CG", "confidence": float}
-    """
-    device    = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    tokenizer = BertTokenizer.from_pretrained(os.path.join(model_dir, "tokenizer"))
-    model     = BertFakeReviewModel()
-    model.load_state_dict(torch.load(os.path.join(model_dir, "bert.pt"), map_location=device))
-    model.to(device).eval()
+        # rating: (B,) → (B, 1) → (B, 32)
+        rating_emb = self.rating_proj(rating.unsqueeze(1))             # (B, 32)
 
-    id2label  = {0: "CG", 1: "OR"}
-    results   = []
+        combined = torch.cat([cls_output, rating_emb], dim=1)          # (B, 800)
+        return self.classifier(combined)                                # (B, 2)
 
-    with torch.no_grad():
-        for text, rating in zip(texts, ratings):
-            enc = tokenizer(
-                str(text),
-                add_special_tokens=True,
-                max_length=MAX_LEN,
-                padding="max_length",
-                truncation=True,
-                return_attention_mask=True,
-                return_tensors="pt",
-            )
-            input_ids      = enc["input_ids"].to(device)
-            attention_mask = enc["attention_mask"].to(device)
-            r              = torch.tensor([[rating / 5.0]], dtype=torch.float).squeeze(1).to(device)
-
-            logits = model(input_ids, attention_mask, r)
-            probs  = torch.softmax(logits, dim=1)
-            pred   = torch.argmax(probs, dim=1).item()
-            conf   = probs[0][pred].item()
-
-            results.append({"label": id2label[pred], "confidence": round(conf, 4)})
-
-    return results
 
 # ─────────────────────────────────────────────
 # TRAINING
@@ -152,8 +128,10 @@ def train():
     train_ds = ReviewDataset(train_texts, train_ratings, train_labels, tokenizer)
     test_ds  = ReviewDataset(test_texts,  test_ratings,  test_labels,  tokenizer)
 
-    train_loader = DataLoader(train_ds, batch_size=BATCH_SIZE, shuffle=True,  num_workers=2, pin_memory=True)
-    test_loader  = DataLoader(test_ds,  batch_size=BATCH_SIZE, shuffle=False, num_workers=2, pin_memory=True)
+    train_loader = DataLoader(train_ds, batch_size=BATCH_SIZE, shuffle=True,
+                              num_workers=2, pin_memory=True)
+    test_loader  = DataLoader(test_ds,  batch_size=BATCH_SIZE, shuffle=False,
+                              num_workers=2, pin_memory=True)
 
     # ── model / optimiser ───────────────────
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -166,7 +144,7 @@ def train():
     total_steps = len(train_loader) * EPOCHS
     scheduler   = get_linear_schedule_with_warmup(
         optim,
-        num_warmup_steps=int(0.1 * total_steps),   # 10 % warmup
+        num_warmup_steps=int(0.1 * total_steps),
         num_training_steps=total_steps,
     )
 
@@ -190,7 +168,7 @@ def train():
             loss   = loss_fn(logits, labels)
 
             loss.backward()
-            nn.utils.clip_grad_norm_(model.parameters(), max_norm=1.0)  # gradient clip
+            nn.utils.clip_grad_norm_(model.parameters(), max_norm=1.0)
             optim.step()
             scheduler.step()
 
@@ -213,7 +191,8 @@ def train():
 
     # ── evaluation ──────────────────────────
     print("\n📊  Evaluating …")
-    model.load_state_dict(torch.load(os.path.join(SAVE_DIR, "bert_best.pt")))  # use best weights
+    best_ckpt = os.path.join(SAVE_DIR, "bert_best.pt")
+    model.load_state_dict(torch.load(best_ckpt, map_location=device))
     model.eval()
 
     all_preds, all_labels_list = [], []
@@ -231,24 +210,25 @@ def train():
             all_preds.extend(preds.cpu().numpy())
             all_labels_list.extend(labels.cpu().numpy())
 
-    acc = accuracy_score(all_labels_list, all_preds)
-    report = classification_report(all_labels_list, all_preds, target_names=["CG (Fake)", "OR (Real)"])
+    acc    = accuracy_score(all_labels_list, all_preds)
+    report = classification_report(
+        all_labels_list, all_preds, target_names=["CG (Fake)", "OR (Real)"]
+    )
 
     print(f"Accuracy : {acc:.4f}")
     print(report)
 
-    # ── save everything ─────────────────────
+    # ── save final model ────────────────────
     os.makedirs(SAVE_DIR, exist_ok=True)
 
-    # rename best → final
-    os.rename(
-        os.path.join(SAVE_DIR, "bert_best.pt"),
-        os.path.join(SAVE_DIR, "bert.pt"),
-    )
+    # safe rename: remove destination first to avoid os.rename failing on Windows
+    final_pt = os.path.join(SAVE_DIR, "bert.pt")
+    if os.path.exists(final_pt):
+        os.remove(final_pt)
+    os.rename(best_ckpt, final_pt)
 
     tokenizer.save_pretrained(os.path.join(SAVE_DIR, "tokenizer"))
 
-    # metadata / config pkl (useful for the FastAPI server)
     meta = {
         "max_len":       MAX_LEN,
         "label_mapping": {"CG": 0, "OR": 1},
@@ -259,7 +239,7 @@ def train():
     with open(os.path.join(SAVE_DIR, "model_meta.pkl"), "wb") as f:
         pickle.dump(meta, f)
 
-    
+    print(f"\n✅  All artifacts saved to {SAVE_DIR}")
 
 
 if __name__ == "__main__":

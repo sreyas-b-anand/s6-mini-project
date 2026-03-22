@@ -8,10 +8,9 @@ import { Textarea } from "@/components/ui/textarea";
 import { Loader } from "lucide-react";
 import usePost from "@/hooks/usePost";
 import BTResultComponent from "./BTResultComponent";
-import { form } from "framer-motion/client";
 import { number } from "framer-motion";
 import { BTMapComponent } from "./BTMapComponent";
-
+import { AlertTriangle } from "lucide-react";
 const BTForm = () => {
   const { postData, loading, data } = usePost("/bert_score");
 
@@ -24,7 +23,7 @@ const BTForm = () => {
     const formData = new FormData();
 
     if (useLink) {
-      formData.append("link", url);
+      formData.append("url", url);
       formData.append("type", "link");
     } else {
       formData.append("review", review);
@@ -40,7 +39,7 @@ const BTForm = () => {
       <div className="text-center space-y-2">
         <p className="font-semibold text-3xl">BERT Review Prediction</p>
         <p className="text-muted text-md">
-          Enter a review or a product link below to predict its authenticity
+          Enter a review or a product link below from the <span className="font-bold">Amazon</span> website to predict its authenticity
         </p>
       </div>
 
@@ -53,6 +52,17 @@ const BTForm = () => {
             {useLink ? "Enter reviews manually" : "Use product link"}
           </Button>
         </div>
+        {useLink && (
+          <div className="flex items-start gap-2 text-sm text-yellow-600 bg-yellow-100/60 border border-yellow-300 rounded-md p-3">
+            <AlertTriangle size={18} className="mt-0.5 shrink-0" />
+            <p>
+              You may need to{" "}
+              <span className="font-semibold">log in to Amazon{" "}</span>
+              for this feature to work, as some reviews are not publicly
+              accessible.
+            </p>
+          </div>
+        )}
 
         {!useLink && (
           <div className="space-y-2">
@@ -101,7 +111,7 @@ const BTForm = () => {
       </div>
 
       {!useLink && <BTResultComponent result={data} />}
-      
+
       {useLink && <BTMapComponent reviews={data} />}
     </div>
   );

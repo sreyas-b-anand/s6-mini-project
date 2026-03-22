@@ -6,7 +6,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # BASE_DIR = server/
 
 detector = FakeReviewDetector(
-    model_dir=os.path.join(BASE_DIR, "models", "bert_model_new")  
+    model_dir=os.path.join(BASE_DIR, "models", "bert_model")  
 )
 
 async def bert_model(texts: str, ratings: float):
@@ -24,10 +24,11 @@ async def bert_model(texts: str, ratings: float):
     formatted_results = [
         {
             "text": text,
+            "rating" : rating,
             "prediction": r["label"], 
             "confidence": r["confidence"]
         }
-        for text, r in zip(texts, results)
+        for text , rating , r in zip(texts , ratings, results)
     ]
     
     return formatted_results

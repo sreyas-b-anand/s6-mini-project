@@ -12,20 +12,30 @@ class BertFakeReviewModel(nn.Module):
     def __init__(self, dropout: float = 0.3):
         super().__init__()
         self.bert = BertModel.from_pretrained("bert-base-uncased")
-        hidden = self.bert.config.hidden_size  # 768
+        hidden = self.bert.config.hidden_size   # 768
+
+        # project the single rating scalar → 32-dim embedding
+        self.rating_proj = nn.Sequential(
+            nn.Linear(1, 32),
+            nn.ReLU(),
+        )
 
         self.classifier = nn.Sequential(
-            nn.Linear(hidden + 1, 256),
+            nn.Linear(hidden + 32, 256),        # 768 + 32 = 800
             nn.ReLU(),
             nn.Dropout(dropout),
             nn.Linear(256, 2),
         )
 
     def forward(self, input_ids, attention_mask, rating):
-        outputs = self.bert(input_ids=input_ids, attention_mask=attention_mask)
-        cls_output = outputs.pooler_output                                    # (B, 768)
-        combined = torch.cat([cls_output, rating.unsqueeze(1)], dim=1)       # (B, 769)
-        return self.classifier(combined)                                      # (B, 2)
+        outputs    = self.bert(input_ids=input_ids, attention_mask=attention_mask)
+        cls_output = outputs.pooler_output                              # (B, 768)
+
+        # rating: (B,) → (B, 1) → (B, 32)
+        rating_emb = self.rating_proj(rating.unsqueeze(1))             # (B, 32)
+
+        combined = torch.cat([cls_output, rating_emb], dim=1)          # (B, 800)
+        return self.classifier(combined)                                # (B, 2)
 
 
 # ─────────────────────────────────────────────
@@ -35,12 +45,12 @@ class FakeReviewDetector:
     def __init__(self, model_dir: str):
         """
         Load model + tokenizer + meta once at startup.
-        model_dir should contain:
+        model_dir must contain:
             bert.pt, tokenizer/, model_meta.pkl
         """
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-        # ── load meta (max_len, label map, etc.) ──
+        # ── load meta ──
         meta_path = os.path.join(model_dir, "model_meta.pkl")
         with open(meta_path, "rb") as f:
             self.meta = pickle.load(f)
@@ -56,12 +66,15 @@ class FakeReviewDetector:
         # ── load model weights ──
         self.model = BertFakeReviewModel()
         self.model.load_state_dict(
-            torch.load(os.path.join(model_dir, "bert.pt"), map_location=self.device)
+            torch.load(
+                os.path.join(model_dir, "bert.pt"),
+                map_location=self.device,
+            )
         )
         self.model.to(self.device)
         self.model.eval()
 
-        print(f"FakeReviewDetector ready on {self.device}")
+        print(f"✅  FakeReviewDetector ready on {self.device}")
 
     # ─────────────────────────────────────────
     def _encode(self, text: str) -> dict:
@@ -75,8 +88,8 @@ class FakeReviewDetector:
             return_tensors="pt",
         )
         return {
-            "input_ids":      enc["input_ids"].squeeze(0),
-            "attention_mask": enc["attention_mask"].squeeze(0),
+            "input_ids":      enc["input_ids"].squeeze(0),       # (seq_len,)
+            "attention_mask": enc["attention_mask"].squeeze(0),  # (seq_len,)
         }
 
     # ─────────────────────────────────────────
@@ -87,26 +100,27 @@ class FakeReviewDetector:
         returns : list of {"label": "OR"|"CG", "confidence": float}
         """
         if len(texts) != len(ratings):
-            raise ValueError("texts and ratings must be the same length.")
+            raise ValueError("texts and ratings must have the same length.")
 
-        all_input_ids      = []
+        all_input_ids       = []
         all_attention_masks = []
-        all_ratings        = []
+        all_ratings         = []
 
         for text, rating in zip(texts, ratings):
             enc = self._encode(str(text))
             all_input_ids.append(enc["input_ids"])
             all_attention_masks.append(enc["attention_mask"])
-            all_ratings.append(rating / 5.0)           # normalise to [0, 1]
+            # normalise to [0, 1] — must match training preprocessing
+            all_ratings.append(rating / 5.0)
 
-        input_ids      = torch.stack(all_input_ids).to(self.device)
-        attention_mask = torch.stack(all_attention_masks).to(self.device)
-        ratings_tensor = torch.tensor(all_ratings, dtype=torch.float).to(self.device)
+        input_ids      = torch.stack(all_input_ids).to(self.device)       # (B, seq_len)
+        attention_mask = torch.stack(all_attention_masks).to(self.device) # (B, seq_len)
+        ratings_tensor = torch.tensor(all_ratings, dtype=torch.float).to(self.device)  # (B,)
 
         with torch.no_grad():
-            logits = self.model(input_ids, attention_mask, ratings_tensor)
-            probs  = torch.softmax(logits, dim=1)
-            preds  = torch.argmax(probs, dim=1)
+            logits = self.model(input_ids, attention_mask, ratings_tensor)  # (B, 2)
+            probs  = torch.softmax(logits, dim=1)                           # (B, 2)
+            preds  = torch.argmax(probs, dim=1)                             # (B,)
 
         results = []
         for pred, prob in zip(preds.cpu().tolist(), probs.cpu().tolist()):
