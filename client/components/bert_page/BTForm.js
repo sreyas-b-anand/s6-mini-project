@@ -13,7 +13,6 @@ import { BTMapComponent } from "./BTMapComponent";
 import { AlertTriangle } from "lucide-react";
 const BTForm = () => {
   const { postData, loading, data } = usePost("/bert_score");
-
   const [review, setReview] = useState("");
   const [rating, setRating] = useState("");
   const [url, setUrl] = useState("");
@@ -88,12 +87,11 @@ const BTForm = () => {
               value={review}
               onChange={(e) => setReview(e.target.value)}
               placeholder="Write the review here..."
-              className="min-h-40 focus-visible:ring-1"
+              className="min-h-30 focus-visible:ring-1"
             />
           </div>
         )}
 
-        {/* Product Link Input */}
         {useLink && (
           <div className="space-y-2">
             <Label className="text-base">Product Link</Label>

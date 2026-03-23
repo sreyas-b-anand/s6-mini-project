@@ -31,4 +31,12 @@ async def bert_model(texts: str, ratings: float):
         for text , rating , r in zip(texts , ratings, results)
     ]
     
-    return formatted_results
+    fake_count = sum(1 for r in results if r["label"] == "CG")
+    total = len(results)
+    fake_percentage = (fake_count / total) * 100
+    
+    return {
+        "results": formatted_results,
+        "fake_percentage": round(fake_percentage, 2), 
+        "total_reviews": total,
+    }
