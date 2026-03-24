@@ -11,7 +11,7 @@ const MLResultComponent = ({ result }) => {
     );
   }
 
-  const isValid = result?.final_result === "OR";
+  const isValid = result?.final_result === "Valid";
 
   return (
     <div className="rounded-md text-center max-w-xl mx-auto py-6 space-y-4">

@@ -3,6 +3,7 @@ import joblib
 import pandas as pd
 import math
 from server.schema.score import MlScoreRequest
+import asyncio
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
@@ -39,15 +40,15 @@ async def combine_predictions(ml_confidence, graph_confidence, rating, text):
 
     return final, combined_score
 
+g = joblib.load(GRAPH_PATH)
+data = joblib.load(MODEL_PATH)
+model = data["model"]
+le = data["label_encoder"]
 
 async def classical_ml(req: MlScoreRequest):
 
     try:
-        g = joblib.load(GRAPH_PATH)
-        data = joblib.load(MODEL_PATH)
-
-        model = data["model"]
-        le = data["label_encoder"]
+        
 
         CATEGORY_MAP = {
             "Electronics": "Electronics_5",
@@ -77,18 +78,31 @@ async def classical_ml(req: MlScoreRequest):
             "text_": req.text
         }])
 
-        graph_data = g.predict_review(
+        # graph_data = g.predict_review(
+        #     review_text=req.text,
+        #     rating=req.rating,
+        #     category=req.category
+        # )
+        graph_task = asyncio.to_thread(
+            g.predict_review,
             review_text=req.text,
             rating=req.rating,
             category=req.category
         )
-
+        
+        ml_task = asyncio.to_thread(
+        lambda: (
+            model.predict(input_df),
+            model.decision_function(input_df)
+            )
+        )   
+        graph_data, (pred, decision_score) = await asyncio.gather(
+        graph_task, ml_task
+        )
         graph_result = graph_data["prediction"]              # "Fake" / "Real"
         graph_confidence = graph_data["suspicion_score"]     # 0 -> 1
         similar_reviews = graph_data["similar_reviews_found"]
 
-        pred = model.predict(input_df)
-        decision_score = model.decision_function(input_df)
 
         ml_confidence = float(decision_score[0])
         final_label = le.inverse_transform(pred)
