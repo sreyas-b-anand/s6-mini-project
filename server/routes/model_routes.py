@@ -1,10 +1,10 @@
 import os
 from fastapi import APIRouter , status , HTTPException
-from server.controllers import bert_model
-from server.controllers import classical_ml 
-from server.schema import BertScoreRequest , MlScoreRequest
-from server.utils import GraphFeatureExtractor
-from server.utils import scrape_and_save
+from controllers import bert_model
+from controllers import classical_ml 
+from schema import BertScoreRequest , MlScoreRequest
+from utils import GraphFeatureExtractor
+from utils import scrape_and_save
 model_router = APIRouter()
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))

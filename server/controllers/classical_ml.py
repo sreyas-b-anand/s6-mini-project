@@ -2,12 +2,12 @@ import os
 import joblib
 import pandas as pd
 import math
-from server.schema.score import MlScoreRequest
+from schema.score import MlScoreRequest
 import asyncio
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
-MODEL_PATH = os.path.join(BASE_DIR, "..", "models", "svm_pipeline.pkl")
+MODEL_PATH = os.path.join(BASE_DIR, ".." , "models", "svm_pipeline.pkl")
 GRAPH_PATH = os.path.join(BASE_DIR, "..", "models", "graph_model.pkl")
 
 async def combine_predictions(ml_confidence, graph_confidence, rating, text):

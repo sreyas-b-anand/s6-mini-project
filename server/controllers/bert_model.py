@@ -1,5 +1,5 @@
 import os
-from server.utils.bert.bert_inference import FakeReviewDetector
+from utils.bert.bert_inference import FakeReviewDetector
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # __file__ = server/controllers/your_controller.py

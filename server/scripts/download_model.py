@@ -9,6 +9,15 @@ url = os.getenv("DRIVE_LINK")
 if not url:
     raise ValueError("DRIVE_LINK environment variable not set")
 
-output_path = "../models"
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+ROOT_DIR = os.path.dirname(BASE_DIR)
 
-gdown.download_folder(url, output=output_path, quiet=False)
+MODEL_DIR = os.path.join(ROOT_DIR, "models")
+
+os.makedirs(MODEL_DIR, exist_ok=True)
+
+if not os.listdir(MODEL_DIR):
+    print("Downloading models...")
+    gdown.download_folder(url, output=MODEL_DIR, quiet=False)
+else:
+    print("Models already exist, skipping download.")
