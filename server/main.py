@@ -12,6 +12,7 @@ app = FastAPI()
 origins = [
     os.getenv("FRONTEND_URL_1"),
     os.getenv("FRONTEND_URL_2"),
+    os.getenv("FRONTEND_URL_3", "")
 ]
 
 app.add_middleware(
