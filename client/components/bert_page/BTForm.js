@@ -74,7 +74,7 @@ const BTForm = () => {
           </div>
         </div>
         {useLink && (
-          <div className="flex gap-2 text-xs text-yellow-400 bg-yellow-500/10 border border-yellow-500/20 rounded-md p-3">
+          <div className="flex gap-2 text-sm text-yellow-500 bg-yellow-500/10 border border-yellow-500/20 rounded-md p-3">
             <AlertTriangle size={16} />
             <p>Some reviews may require login on Amazon to be accessible</p>
           </div>

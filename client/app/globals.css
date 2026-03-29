@@ -2,30 +2,59 @@
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
 
-:root {
-  --background: #030712;
-  --foreground: #e5e7eb;
+@custom-variant dark (&:where([data-theme=dark], [data-theme=dark] *));
 
-  --primary: #6366f1;
+:root {
+  /* LIGHT THEME → PURE B/W */
+  --background: #ffffff;
+  --foreground: #000000;
+
+  --primary: #000000;
   --primary-foreground: #ffffff;
 
-  --secondary: #111827;
-  --accent: #22d3ee;
+  --secondary: #f5f5f5;
+  --accent: #000000;
 
-  --card: #0b1220;
-  --card-foreground: #e5e7eb;
+  --card: #ffffff;
+  --card-foreground: #000000;
 
-  --border: #1f2937;
-  --muted: #6b7280;
+  --border: #e5e5e5;
+  --muted: #737373;
 
   --radius: 1rem;
 
-  --shadow-sm: 0 2px 8px rgba(0,0,0,0.3);
-  --shadow-md: 0 10px 30px rgba(0,0,0,0.4);
-  --shadow-lg: 0 25px 80px rgba(0,0,0,0.6);
+  --shadow-sm: 0 2px 6px rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 8px 20px rgba(0, 0, 0, 0.08);
+  --shadow-lg: 0 20px 60px rgba(0, 0, 0, 0.12);
 
-  --glow-primary: 99, 102, 241;
+  --glow-primary: 0, 0, 0;
 }
+
+
+    .dark {
+      --background: #030712;
+      --foreground: #e5e7eb;
+
+      --primary: #6366f1;
+      --primary-foreground: #ffffff;
+
+      --secondary: #111827;
+      --accent: #22d3ee;
+
+      --card: #0b1220;
+      --card-foreground: #e5e7eb;
+
+      --border: #1f2937;
+      --muted: #6b7280;
+
+      --radius: 1rem;
+
+      --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.3);
+      --shadow-md: 0 10px 30px rgba(0, 0, 0, 0.4);
+      --shadow-lg: 0 25px 80px rgba(0, 0, 0, 0.6);
+
+      --glow-primary: 99, 102, 241;
+    }
 
 @theme {
   --color-background: var(--background);
@@ -51,27 +80,15 @@
 
   background: radial-gradient(
     circle at 30% 20%,
-    rgba(var(--glow-primary), 0.2),
+    rgba(var(--glow-primary), 0.08),
     transparent 40%
   );
 
   filter: blur(100px);
 }
 
-.glass {
-  background: rgba(11, 18, 32, 0.6);
-  backdrop-filter: blur(24px);
-  border: 1px solid var(--border);
-  box-shadow: var(--shadow-md);
-  border-radius: var(--radius);
-}
-
-.glow {
-  box-shadow: 0 0 60px rgba(var(--glow-primary), 0.35);
-}
-
 .input-modern {
-  background: #020617;
+  background: var(--color-background);
   border: 1px solid var(--border);
   border-radius: var(--radius);
   transition: all 0.2s ease;
@@ -98,7 +115,8 @@
 }
 
 body {
-  background: radial-gradient(
+  background:
+    radial-gradient(
       circle at 50% 0%,
       rgba(99, 102, 241, 0.08),
       transparent 40%
@@ -106,7 +124,9 @@ body {
     var(--background);
 
   color: var(--foreground);
-  font-feature-settings: "rlig" 1, "calt" 1;
+  font-feature-settings:
+    "rlig" 1,
+    "calt" 1;
 }
 
 ::-webkit-scrollbar {
