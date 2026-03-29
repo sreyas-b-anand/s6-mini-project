@@ -13,7 +13,6 @@ from transformers import (
 )
 from torch.optim import AdamW
 
-# ── UPDATE THESE PATHS BEFORE RUNNING ───────
 DATA_PATH = "/kaggle/input/datasets/namish17/reviews/reviews.csv"
 SAVE_DIR  = "/kaggle/working/bert_model"
 # ────────────────────────────────────────────
@@ -117,7 +116,7 @@ class BertFakeReviewModel(nn.Module):
 # TRAINING
 # ─────────────────────────────────────────────
 def train():
-    print("🚀  Loading data …")
+    print("Loading data …")
     df = pd.read_csv(DATA_PATH)
 
     # ── normalise columns ───────────────────
@@ -259,7 +258,7 @@ def train():
             total_train_loss += loss.item()
 
             if step % 50 == 0:
-                print(f"  Epoch {epoch}/{EPOCHS}  step {step}/{len(train_loader)}  "
+                print(f"Epoch {epoch}/{EPOCHS}  step {step}/{len(train_loader)}  "
                       f"train_loss={total_train_loss/step:.4f}")
 
         avg_train_loss = total_train_loss / len(train_loader)
@@ -287,7 +286,7 @@ def train():
         avg_val_loss = total_val_loss / len(val_loader)
         val_acc      = accuracy_score(val_true, val_preds)
 
-        print(f"✅  Epoch {epoch}/{EPOCHS} — "
+        print(f"Epoch {epoch}/{EPOCHS} — "
               f"train_loss: {avg_train_loss:.4f}  "
               f"val_loss: {avg_val_loss:.4f}  "
               f"val_acc: {val_acc:.4f}")
@@ -313,7 +312,7 @@ def train():
                 break
 
     # ── evaluation on test set ───────────────
-    print("\n📊  Evaluating on test set …")
+    print("\nEvaluating on test set …")
     model.load_state_dict(torch.load(os.path.join(SAVE_DIR, "bert_best.pt"),
                                      map_location=device))
     model.eval()
@@ -341,7 +340,6 @@ def train():
     print(f"Test Accuracy : {acc:.4f}")
     print(report)
 
-    # ── save final artifacts ─────────────────
     final_pt = os.path.join(SAVE_DIR, "bert.pt")
     if os.path.exists(final_pt):
         os.remove(final_pt)
@@ -359,7 +357,7 @@ def train():
     with open(os.path.join(SAVE_DIR, "model_meta.pkl"), "wb") as f:
         pickle.dump(meta, f)
 
-    print(f"\n✅  All artifacts saved to {SAVE_DIR}")
+    print(f"\n All artifacts saved to {SAVE_DIR}")
 
 
 if __name__ == "__main__":

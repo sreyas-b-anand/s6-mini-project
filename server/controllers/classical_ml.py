@@ -1,4 +1,5 @@
 import os
+from fastapi import HTTPException
 import joblib
 import pandas as pd
 import math
@@ -65,24 +66,19 @@ async def classical_ml(req: MlScoreRequest):
 
        
         if not req.text or not req.rating or not req.category:
-            raise Exception("Missing fields")
+            raise HTTPException(status_code=400, detail="Missing fields")
 
         mapped_category = CATEGORY_MAP.get(req.category)
 
         if mapped_category is None:
-            raise Exception("Invalid category")
+            raise HTTPException(status_code=400, detail="Invalid category")
 
         input_df = pd.DataFrame([{
             "category": req.category,
             "rating": req.rating,
             "text_": req.text
         }])
-
-        # graph_data = g.predict_review(
-        #     review_text=req.text,
-        #     rating=req.rating,
-        #     category=req.category
-        # )
+        
         graph_task = asyncio.to_thread(
             g.predict_review,
             review_text=req.text,
@@ -127,4 +123,4 @@ async def classical_ml(req: MlScoreRequest):
         }
 
     except Exception as e:
-        raise Exception(e)
+        raise HTTPException(status_code=500, detail=str(e))
