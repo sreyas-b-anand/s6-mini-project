@@ -1,5 +1,4 @@
 import MLForm from "@/components/ml_page/MlForm";
-// import MLResultComponent from "@/components/ml_page/MLResultComponent";
 import React from "react";
 
 const MLPage = () => {

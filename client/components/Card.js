@@ -2,58 +2,66 @@
 
 import { Card, CardContent } from "@/components/ui/card";
 import { CloudAlert, CloudCheck, Star } from "lucide-react";
+import { motion } from "framer-motion";
 
 export const ReviewCard = ({ review }) => {
   const isReal = review.prediction === "OR";
+  const confidence = (review.confidence * 100).toFixed(1);
 
   return (
-    <Card
-      className={`w-full shadow-md border ${
-        isReal ? "border-green-500" : "border-red-500"
-      } hover:shadow-lg transition rounded-2xl ${
-        isReal ? "bg-green-200/30" : "bg-red-200/30"
-      }`}
-    >
-      <CardContent className="p-4 flex flex-col justify-between h-full">
-        <div className="space-y-3">
-          <p className="text-sm">{review.text}</p>
-        </div>
+    <motion.div whileHover={{ y: -4 }} transition={{ duration: 0.2 }}>
+      <Card className="surface card-hover h-full">
+        <CardContent className="p-5 flex flex-col justify-between h-full space-y-4">
+          {/* Review Text */}
+          <p className="text-sm text-foreground leading-relaxed line-clamp-4">
+            {review.text}
+          </p>
 
-        <div className="flex items-start gap-4 justify-between mt-4 flex-col">
-          <div className="flex items-center gap-1 text-yellow-500">
-            {[...Array(5)].map((_, i) => (
-              <Star
-                key={i}
-                size={16}
-                fill={i < review.rating ? "currentColor" : "none"}
-              />
-            ))}
-            <span className="text-xs text-muted-foreground ml-2">
-              {review.rating}/5
-            </span>
-          </div>
+          {/* Bottom Section */}
+          <div className="space-y-4">
+            {/* Rating */}
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-1 text-yellow-400">
+                {[...Array(5)].map((_, i) => (
+                  <Star
+                    key={i}
+                    size={14}
+                    fill={i < review.rating ? "currentColor" : "none"}
+                  />
+                ))}
+              </div>
 
-          <div className="w-full bg-muted h-2 rounded-full overflow-hidden">
-            <div
-              className={`h-2 ${isReal ? "bg-green-500" : "bg-red-500"}`}
-              style={{ width: `${review.confidence * 100}%` }}
-            />
+              <span className="text-xs text-muted">{review.rating}/5</span>
+            </div>
+
+            {/* Confidence Bar */}
+            <div className="space-y-1">
+              <div className="w-full h-1.5 bg-secondary rounded-full overflow-hidden">
+                <motion.div
+                  initial={{ width: 0 }}
+                  animate={{ width: `${confidence}%` }}
+                  transition={{ duration: 0.6 }}
+                  className={`h-full ${isReal ? "bg-green-500" : "bg-red-500"}`}
+                />
+              </div>
+            </div>
+
+            {/* Result Row */}
+            <div className="flex items-center justify-between text-xs">
+              <div
+                className={`flex items-center gap-1 font-medium ${
+                  isReal ? "text-green-400" : "text-red-400"
+                }`}
+              >
+                {isReal ? <CloudCheck size={16} /> : <CloudAlert size={16} />}
+                {isReal ? "Authentic" : "Fake"}
+              </div>
+
+              <span className="text-muted">{confidence}%</span>
+            </div>
           </div>
-          <div
-            className={`w-full flex items-center gap-2 font-semibold  justify-between ${
-              isReal ? "text-green-600" : "text-red-600"
-            }`}
-          >
-            <span className="flex items-center gap-2">
-              {isReal ? <CloudCheck size={18} /> : <CloudAlert size={18} />}
-              {isReal ? "Authentic" : "Fake"}
-            </span>
-            <span className="text-xs text-muted/80">
-              {(review.confidence * 100).toFixed(1)}%
-            </span>
-          </div>
-        </div>
-      </CardContent>
-    </Card>
+        </CardContent>
+      </Card>
+    </motion.div>
   );
 };

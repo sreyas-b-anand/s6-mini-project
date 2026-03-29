@@ -13,6 +13,7 @@ import {
   SelectItem,
 } from "@/components/ui/select";
 import { Loader } from "lucide-react";
+import { motion } from "framer-motion";
 import usePost from "@/hooks/usePost";
 import MLResultComponent from "./MLResultComponent";
 
@@ -24,8 +25,9 @@ const MLForm = () => {
   const [text, setText] = useState("");
 
   const handleSubmit = async () => {
-    const formData = new FormData();
+    if (!category || !rating || !text) return;
 
+    const formData = new FormData();
     formData.append("category", category);
     formData.append("rating", rating);
     formData.append("text", text);
@@ -34,11 +36,18 @@ const MLForm = () => {
   };
 
   return (
-    <div className="max-w-xl mx-auto space-y-8">
-      <div className="text-center space-y-2">
-        <p className="font-semibold text-3xl">Single Review Prediction</p>
-        <p className="text-muted text-lg">
-          Enter a review below to predict its authenticity
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5 }}
+      className="max-w-2xl mx-auto p-8 surface card-hover space-y-8"
+    >
+      <div className="text-center space-y-3">
+        <h1 className="text-3xl font-semibold tracking-tight">
+          Review Authenticity Checker
+        </h1>
+        <p className="text-muted text-sm">
+          Detect whether a review is genuine using machine learning
         </p>
       </div>
 
@@ -88,26 +97,39 @@ const MLForm = () => {
         </div>
 
         <div className="space-y-2">
-          <Label className="text-base">Review Text</Label>
+          <Label>Review</Label>
           <Textarea
             value={text}
             onChange={(e) => setText(e.target.value)}
-            placeholder="Write the review here..."
-            className="min-h-30 focus-visible:ring-1 "
+            placeholder="Write a detailed review..."
+            className="min-h-30 input-modern"
           />
         </div>
 
         <Button
           onClick={handleSubmit}
           disabled={loading}
-          className="w-full py-6 text-background hover:cursor-pointer hover:opacity-90"
+          className="w-full py-6 text-base font-medium button-primary glow hover:cursor-pointer"
         >
-          {loading ? <Loader className="animate-spin" /> : "Predict Review using ML model"}
+          {loading ? (
+            <span className="flex items-center gap-2">
+              <Loader className="animate-spin" size={18} />
+              Analyzing
+            </span>
+          ) : (
+            "Analyze Review"
+          )}
         </Button>
       </div>
 
-      {<MLResultComponent result={data} />}
-    </div>
+      <motion.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: data ? 1 : 0, y: data ? 0 : 10 }}
+        transition={{ duration: 0.4 }}
+      >
+        <MLResultComponent result={data} />
+      </motion.div>
+    </motion.div>
   );
 };
 

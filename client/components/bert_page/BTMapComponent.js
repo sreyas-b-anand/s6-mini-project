@@ -1,41 +1,64 @@
 "use client";
 import { ReviewCard } from "@/components/Card";
+import { motion } from "framer-motion";
 
 export const BTMapComponent = ({ reviews }) => {
-  if (!reviews || reviews.length === 0) {
+  if (!reviews || !reviews.results || reviews.results.length === 0) {
     return (
-      <div className="w-full  rounded-md  text-center max-w-xl mx-auto py-6">
-        <p className="text-center text-muted">Predictions will appear here.</p>
+      <div className="text-center py-6">
+        <p className="text-muted text-sm">Predictions will appear here</p>
       </div>
     );
   }
 
+  const fakePercentage = reviews.fake_percentage;
+
   return (
-    <>
-      <div>
-        <p className="text-center text-primary mb-4">
-          {reviews &&
-            reviews.length > 0 &&
-            "Below are the reviews extracted from the provided product link, along with their predicted authenticity."}
-        </p>
-        <div className="text-foreground/70 text-center">
-          {reviews?.fake_percentage && (
-            <p>
-              Approximately{" "}
-              <span className="font-bold text-primary">
-                {reviews?.fake_percentage}%
+    <motion.div
+      initial={{ opacity: 0, y: 15 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.4 }}
+      className="space-y-6"
+    >
+      <div className="surface p-5 space-y-3 text-center">
+        <p className="text-sm text-muted">Extracted Reviews Analysis</p>
+
+        {fakePercentage !== undefined && (
+          <div className="space-y-2">
+            <p className="text-foreground text-sm">Fake Review Ratio</p>
+
+            <div className="w-full h-2 bg-secondary rounded-full overflow-hidden">
+              <motion.div
+                initial={{ width: 0 }}
+                animate={{ width: `${fakePercentage}%` }}
+                transition={{ duration: 0.6 }}
+                className="h-full bg-red-500"
+              />
+            </div>
+
+            <p className="text-xs text-muted">
+              <span className="font-semibold text-red-400">
+                {fakePercentage}%
               </span>{" "}
-              of the reviews are predicted to be fake.
+              reviews predicted as fake
             </p>
-          )}
-        </div>
+          </div>
+        )}
       </div>
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-2">
-        {reviews &&
-          reviews?.results?.map((review, index) => (
-            <ReviewCard key={index} review={review} />
-          ))}
+
+      {/* Grid */}
+      <div className="grid gap-4 md:grid-cols-2">
+        {reviews.results.map((review, index) => (
+          <motion.div
+            key={index}
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: index * 0.05 }}
+          >
+            <ReviewCard review={review} />
+          </motion.div>
+        ))}
       </div>
-    </>
+    </motion.div>
   );
 };
