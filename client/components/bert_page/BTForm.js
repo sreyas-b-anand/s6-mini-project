@@ -58,7 +58,7 @@ const BTForm = () => {
             <button
               onClick={() => setUseLink(false)}
               className={`px-4 py-1.5 text-sm rounded-md transition ${
-                !useLink ? "bg-primary text-white" : "text-muted"
+                !useLink ? "bg-primary text-white" : "text-foreground"
               }`}
             >
               Manual
@@ -66,7 +66,7 @@ const BTForm = () => {
             <button
               onClick={() => setUseLink(true)}
               className={`px-4 py-1.5 text-sm rounded-md transition ${
-                useLink ? "bg-primary text-white" : "text-muted"
+                useLink ? "bg-primary text-white" : "text-foreground"
               }`}
             >
               Link

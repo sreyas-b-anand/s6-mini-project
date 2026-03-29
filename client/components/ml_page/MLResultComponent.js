@@ -7,7 +7,7 @@ const MLResultComponent = ({ result }) => {
   if (!result) {
     return (
       <div className="text-center py-4">
-        <p className="text-white text-sm">Prediction will appear here</p>
+        <p className="text-foreground text-sm">Prediction will appear here</p>
       </div>
     );
   }
