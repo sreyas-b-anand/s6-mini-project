@@ -8,8 +8,9 @@ import { Textarea } from "@/components/ui/textarea";
 import { Loader, AlertTriangle } from "lucide-react";
 import { motion } from "framer-motion";
 import usePost from "@/hooks/usePost";
-import BTResultComponent from "./BTResultComponent";
-import { BTMapComponent } from "./BTMapComponent";
+import BTResultComponent from "@/components/bert_page/BTResultComponent";
+import { BTMapComponent } from "@/components/bert_page/BTMapComponent";
+import Toggle from "@/components/Toggle";
 
 const BTForm = () => {
   const { postData, loading, data } = usePost("/bert_score");
@@ -53,26 +54,7 @@ const BTForm = () => {
       </div>
 
       <div className="space-y-6">
-        <div className="flex justify-center">
-          <div className="flex bg-secondary p-1 rounded-lg">
-            <button
-              onClick={() => setUseLink(false)}
-              className={`px-4 py-1.5 text-sm rounded-md transition ${
-                !useLink ? "bg-primary text-white" : "text-foreground"
-              }`}
-            >
-              Manual
-            </button>
-            <button
-              onClick={() => setUseLink(true)}
-              className={`px-4 py-1.5 text-sm rounded-md transition ${
-                useLink ? "bg-primary text-white" : "text-foreground"
-              }`}
-            >
-              Link
-            </button>
-          </div>
-        </div>
+        <Toggle useLink={useLink} setUseLink={setUseLink} />
         {useLink && (
           <div className="flex gap-2 text-sm text-yellow-500 bg-yellow-500/10 border border-yellow-500/20 rounded-md p-3">
             <AlertTriangle size={16} />

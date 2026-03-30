@@ -21,7 +21,7 @@ const HeroSection = () => {
         >
           Detect Deception.
           <br />
-          <span className="bg-gradient-to-r from-indigo-500 via-blue-500 to-cyan-400 text-transparent bg-clip-text">
+          <span className="bg-linear-to-r from-indigo-500 via-blue-500 to-cyan-400 text-transparent bg-clip-text">
             Restore Online Trust.
           </span>
         </motion.h1>
