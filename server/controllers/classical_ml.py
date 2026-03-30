@@ -11,6 +11,18 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 MODEL_PATH = os.path.join(BASE_DIR, ".." , "models", "svm_pipeline.pkl")
 GRAPH_PATH = os.path.join(BASE_DIR, "..", "models", "graph_model.pkl")
 
+def classify_strength(score):
+    if score < 0.20:
+        return "Strongly Valid"
+    elif score < 0.40:
+        return "Likely Valid"
+    elif score < 0.55:
+        return "Uncertain"
+    elif score < 0.75:
+        return "Likely Fake"
+    else:
+        return "Strongly Fake"
+    
 async def combine_predictions(ml_confidence, graph_confidence, rating, text):
    
     ML_WEIGHT = 0.65
@@ -111,11 +123,14 @@ async def classical_ml(req: MlScoreRequest):
             req.rating,
             req.text
         )
+        
+        strength = classify_strength(final_confidence_score)
 
         return {
             "prediction_ml": ml_result,
             "prediction_g": graph_result,
             "similar_reviews_found": similar_reviews,
+            "strength": strength,
             "confidence_ml": ml_confidence,
             "confidence_g": graph_confidence,
             "final_result": final_result,
