@@ -18,7 +18,7 @@ const Navbar = ({ buttonProps }) => {
   //   localStorage.setItem("theme", isDark ? "dark" : "light");
   // };
   return (
-    <div className="w-full py-4 flex justify-between items-center px-6 rounded-md bg-card shadow-md border border-border">
+    <div className="w-full py-4 flex justify-between items-center px-6 rounded-md bg-background shadow-md ">
       {" "}
       <p className="font-semibold text-2xl">RevDet</p>
       {/* <div>

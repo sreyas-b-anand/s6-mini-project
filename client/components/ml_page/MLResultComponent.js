@@ -68,7 +68,7 @@ const MLResultComponent = ({ result }) => {
       initial={{ opacity: 0, y: 15 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4 }}
-      className="surface p-6 space-y-5 text-center border rounded-md border-muted/40"
+      className="surface p-6 space-y-5 text-center rounded-md "
     >
       <p className="text-md text-foreground">Prediction Result</p>
 
