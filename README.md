@@ -87,36 +87,6 @@ npm run dev
 
 Open http://localhost:3000 in your browser to access the application.
 
-## Backend Setup
-
-```powershell
-cd server
-python -m venv venv
-venv\Scripts\activate
-pip install -r requirements.txt
-python -m nltk.downloader stopwords punkt
-```
-
-### Start backend
-
-```powershell
-cd c:\minipro\s6-mini-project
-venv\Scripts\activate
-uvicorn server.main:app --reload --host 127.0.0.1 --port 8000
-```
-
-**Note:** `server/main.py` now includes a sys.path adjustment so module imports (`server.*`) and unpickling from `joblib` are robust in Uvicorn mode.
-
-## Frontend Setup
-
-```bash
-cd client
-npm install
-npm run dev
-```
-
-Open `http://localhost:3000`.
-
 ## API Endpoints
 
 - `POST /model/bert_score` -> body: `type: "single"` or `"link"`, `review`, `rating`, `url` as needed
