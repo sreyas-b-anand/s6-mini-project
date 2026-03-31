@@ -1,10 +1,17 @@
 import os
+import sys
+from pathlib import Path
 from fastapi import HTTPException
 import joblib
 import pandas as pd
 import math
 from schema.score import MlScoreRequest
 import asyncio
+
+# allow loading pickles created with `server.*` module path when running as `uvicorn main:app`
+PROJECT_ROOT = Path(__file__).resolve().parents[1]
+if str(PROJECT_ROOT) not in sys.path:
+    sys.path.insert(0, str(PROJECT_ROOT))
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
