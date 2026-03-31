@@ -1,5 +1,5 @@
 "use client";
-import { useEffect } from "react";
+
 import { Moon, SquareArrowOutUpRight, Sun } from "lucide-react";
 import Link from "next/link";
 import React from "react";
@@ -20,7 +20,7 @@ const Navbar = ({ buttonProps }) => {
   return (
     <div className="w-full py-4 flex justify-between items-center px-6 rounded-md bg-background shadow-md ">
       {" "}
-      <p className="font-semibold text-2xl">RevDet</p>
+      <p className="font-semibold text-2xl"><Link href="/">RevDet</Link></p>
       {/* <div>
         <Button className={"bg-transparent"} onClick={toggleTheme}>
           <Moon size={18} color="black" />

@@ -51,7 +51,7 @@ const HeroSection = () => {
           <Button
             variant="outline"
             onClick={() => router.push("/bert")}
-            className="px-8 py-6 text-base font-medium rounded-xl hover:scale-105 transition-all"
+            className="px-8 py-6 text-base font-medium rounded-xl hover:scale-105 transition-all hover:bg-foreground hover:text-background"
           >
             Try BERT Model
           </Button>
