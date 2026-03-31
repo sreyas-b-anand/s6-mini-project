@@ -19,13 +19,11 @@ MODEL_PATH = os.path.join(BASE_DIR, ".." , "models", "svm_pipeline.pkl")
 GRAPH_PATH = os.path.join(BASE_DIR, "..", "models", "graph_model.pkl")
 
 def classify_strength(score):
-    if score < 0.20:
+    if score < 0.25:
         return "Strongly Valid"
-    elif score < 0.40:
+    elif score < 0.45:
         return "Likely Valid"
-    elif score < 0.55:
-        return "Uncertain"
-    elif score < 0.75:
+    elif score < 0.65:
         return "Likely Fake"
     else:
         return "Strongly Fake"
