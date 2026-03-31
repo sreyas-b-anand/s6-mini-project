@@ -54,19 +54,47 @@ pip install -r requirements.txt
 
 This installs all required Python packages including FastAPI, scikit-learn, torch, and NLTK data.
 
-### 3. Run the Backend
+### 3. Configure `.env` and Download Models
+
+The backend downloads the ML models from a Google Drive folder using a link stored in `server/.env`.
+
+1. In the `server/` folder, copy the example env file:
+
+   ```powershell
+   cd server
+   copy .env.example .env
+   ```
+
+2. Open `.env` and paste the provided Google Drive **models folder link** into the `DRIVE_LINK` value:
+
+   ```env
+   DRIVE_LINK="https://drive.google.com/drive/folders/<your-model-folder-id>"
+   ```
+
+   You can also adjust `FRONTEND_URL_1` and `FRONTEND_URL_2` if needed.
+
+3. With the virtual environment activated in `server/`, download the models:
+
+   ```powershell
+   python scripts/download_model.py
+   ```
+
+   This script uses `DRIVE_LINK` to download all required model files into `server/models/`.
+
+### 4. Run the Backend
 
 From the project root directory:
 
 ```powershell
 cd c:\minipro\s6-mini-project
+cd server
 venv\Scripts\activate
-uvicorn server.main:app --reload --host 127.0.0.1 --port 8000
+uvicorn main:app --reload --host 127.0.0.1 --port 8000
 ```
 
-The backend will start on http://127.0.0.1:8000. You should see logs indicating the models are loading.
+The backend will start on http://127.0.0.1:8000. You should see logs indicating the models are loading (after the models have been downloaded).
 
-### 4. Install Frontend Libraries
+### 5. Install Frontend Libraries
 
 In a new terminal, navigate to the client directory:
 
@@ -77,7 +105,7 @@ npm i
 
 This installs all Node.js dependencies including Next.js, React, and Tailwind CSS.
 
-### 5. Run the Frontend
+### 6. Run the Frontend
 
 From the client directory:
 
@@ -109,3 +137,5 @@ Open http://localhost:3000 in your browser to access the application.
 ## License
 
 MIT
+
+
