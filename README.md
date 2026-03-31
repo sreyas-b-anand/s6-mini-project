@@ -2,7 +2,7 @@
 
 A full-stack fake review detection project with:
 
-- Frontend: Next.js 13 app in `client/`
+- Frontend: Next.js in `client/`
 - Backend: FastAPI server in `server/`
 - ML models:
   - BERT-based text classifier (`server/controllers/bert_model.py`)
