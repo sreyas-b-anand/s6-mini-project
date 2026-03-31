@@ -30,6 +30,64 @@ A full-stack fake review detection project with:
 - Node.js 18+
 - Git
 
+## Getting Started
+
+Follow these steps to set up and run the Fake Review Detection Application locally.
+
+### 1. Clone the Repository
+
+```bash
+git clone <your-repo-url>
+cd s6-mini-project
+```
+
+### 2. Install Backend Libraries
+
+Navigate to the server directory and set up the Python environment:
+
+```powershell
+cd server
+python -m venv venv
+venv\Scripts\activate  # On Windows
+pip install -r requirements.txt
+python -m nltk.downloader stopwords punkt
+```
+
+This installs all required Python packages including FastAPI, scikit-learn, torch, and NLTK data.
+
+### 3. Run the Backend
+
+From the project root directory:
+
+```powershell
+cd c:\minipro\s6-mini-project
+venv\Scripts\activate
+uvicorn server.main:app --reload --host 127.0.0.1 --port 8000
+```
+
+The backend will start on http://127.0.0.1:8000. You should see logs indicating the models are loading.
+
+### 4. Install Frontend Libraries
+
+In a new terminal, navigate to the client directory:
+
+```bash
+cd client
+npm install
+```
+
+This installs all Node.js dependencies including Next.js, React, and Tailwind CSS.
+
+### 5. Run the Frontend
+
+From the client directory:
+
+```bash
+npm run dev
+```
+
+Open http://localhost:3000 in your browser to access the application.
+
 ## Backend Setup
 
 ```powershell
