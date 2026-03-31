@@ -37,7 +37,7 @@ Follow these steps to set up and run the Fake Review Detection Application local
 ### 1. Clone the Repository
 
 ```bash
-git clone <your-repo-url>
+git clone https://github.com/sreyas-b-anand/s6-mini-project.git
 cd s6-mini-project
 ```
 
@@ -48,9 +48,8 @@ Navigate to the server directory and set up the Python environment:
 ```powershell
 cd server
 python -m venv venv
-venv\Scripts\activate  # On Windows
+venv\Scripts\activate 
 pip install -r requirements.txt
-python -m nltk.downloader stopwords punkt
 ```
 
 This installs all required Python packages including FastAPI, scikit-learn, torch, and NLTK data.
@@ -73,7 +72,7 @@ In a new terminal, navigate to the client directory:
 
 ```bash
 cd client
-npm install
+npm i
 ```
 
 This installs all Node.js dependencies including Next.js, React, and Tailwind CSS.
