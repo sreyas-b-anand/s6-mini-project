@@ -21,7 +21,7 @@ GRAPH_PATH = os.path.join(BASE_DIR, "..", "models", "graph_model.pkl")
 def classify_strength(score):
     if score < 0.25:
         return "Strongly Valid"
-    elif score < 0.45:
+    elif score < 0.47:
         return "Likely Valid"
     elif score < 0.65:
         return "Likely Fake"
