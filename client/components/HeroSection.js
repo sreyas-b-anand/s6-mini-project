@@ -43,7 +43,7 @@ const HeroSection = () => {
         >
           <Button
             onClick={() => router.push("/ml")}
-            className="px-8 py-6 text-base font-medium rounded-xl shadow-md hover:scale-105 transition-all"
+            className="px-8 py-6 text-base font-medium rounded-xl shadow-md hover:scale-105 transition-all hover:cursor-pointer"
           >
             Try Classical ML
           </Button>
@@ -51,7 +51,7 @@ const HeroSection = () => {
           <Button
             variant="outline"
             onClick={() => router.push("/bert")}
-            className="px-8 py-6 text-base font-medium rounded-xl hover:scale-105 transition-all hover:bg-foreground hover:text-background"
+            className="px-8 py-6 text-base font-medium rounded-xl hover:scale-105 transition-all hover:bg-foreground hover:text-background hover:cursor-pointer"
           >
             Try BERT Model
           </Button>
